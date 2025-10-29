@@ -4,6 +4,7 @@ build/
 *.class
 *.jar
 *.apk
+.env
 
 # IDE files
 .idea/
