@@ -131,6 +131,8 @@ client.once("ready", async c => {
   setInterval(() => updateBotActivity(c), 30_000);
 });
 
+
+
 client.on("shardDisconnect", () => updateStatus("offline"));
 client.on("error", () => updateStatus("offline"));
 
@@ -160,8 +162,137 @@ async function updateBotActivity(client) {
   });
 }
 
+const SUPABASE_URL = "https://negfiesrxejowqjmuwxn.supabase.co";
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // NICHT ANON_KEY!
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+
+  // Beispiel: XP +10, Coins +5
+  const currentXP = 15;   // Aus deiner DB oder Cache
+  const currentCoins = 10;
+  const currentLevel = 1;
+
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/update-user`, {
+      method: "POST",
+      headers: {
+        "apikey": SERVICE_ROLE_KEY,
+        "Authorization": `Bearer ${SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        discord_id: message.author.id,
+        username: message.author.username,
+        global_name: message.author.globalName,
+        avatar: message.author.avatar,
+        coins: currentCoins + 5,
+        level: currentLevel,
+        xp: currentXP + 10,
+      }),
+    });
+  } catch (err) {
+    console.error("User-Update fehlgeschlagen:", err);
+  }
+
+  // Dein Befehl hier...
+  if (message.content === "!ping") {
+    message.reply("Pong! Dein Profil wurde aktualisiert.");
+  }
+  client.once('ready', async () => {
+  console.log(`Bot online: ${client.user.tag}`);
+
+  for (const [id, member] of client.users.cache) {
+    if (member.bot) continue;
+
+    await fetch(`${SUPABASE_URL}/functions/v1/update-user`, {
+      method: "POST",
+      headers: {
+        "apikey": SERVICE_ROLE_KEY,
+        "Authorization": `Bearer ${SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        discord_id: member.id,
+        username: member.username,
+        global_name: member.globalName,
+        avatar: member.avatar,
+        coins: 0,
+        level: 1,
+        xp: 0,
+      }),
+    });
+  }
+});
+});
+
 // Start
 client.login(TOKEN).catch(err => {
   console.error("Login fehlgeschlagen:", err);
   process.exit(1);
+});
+
+
+
+// === HELFER: User in DB eintragen ===
+async function trackUser(user) {
+  if (user.bot) return;
+
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/update-user`, {
+      method: "POST",
+      headers: {
+        "apikey": SERVICE_ROLE_KEY,
+        "Authorization": `Bearer ${SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        discord_id: user.id,
+        username: user.username,
+        global_name: user.globalName,
+        avatar: user.avatar,
+      }),
+    });
+  } catch (err) {
+    console.error("User-Tracking fehlgeschlagen:", err);
+  }
+}
+
+// === 1. BEI NACHRICHT (schreibt) ===
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+
+  await trackUser(message.author); // SOFORT EINGETRAGEN
+
+  // Dein Befehl hier...
+  if (message.content === "!ping") {
+    message.reply("Pong! Du bist jetzt in der DB.");
+  }
+});
+
+// === 2. BEI REAKTION (reagiert) ===
+client.on('messageReactionAdd', async (reaction, user) => {
+  if (user.bot) return;
+
+  await trackUser(user); // SOFORT EINGETRAGEN
+});
+
+// === 3. BEI JOIN (Server beitreten) ===
+client.on('guildMemberAdd', async (member) => {
+  if (member.user.bot) return;
+
+  await trackUser(member.user); // SOFORT EINGETRAGEN
+});
+
+// === 4. BEI BOT-START (alle Member eintragen) ===
+client.once('ready', async () => {
+  console.log(`Bot online: ${client.user.tag}`);
+
+  for (const [_, guild] of client.guilds.cache) {
+    for (const [_, member] of guild.members.cache) {
+      if (!member.user.bot) {
+        await trackUser(member.user);
+      }
+    }
+  }
 });

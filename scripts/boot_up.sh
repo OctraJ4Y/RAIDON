@@ -11,6 +11,4 @@ curl -s "https://$PROJECT.supabase.co/functions/v1/bot-stats" \
 
 echo -e "\n\nLeaderboard"
 curl -s "https://$PROJECT.supabase.co/functions/v1/get-leaderboard" \
-  -H "apikey: $ANON_KEY" -H "Au
-  
-  
+  -H "apikey: $ANON_KEY" -H "Authorization: Bearer $ANON_KEY"
