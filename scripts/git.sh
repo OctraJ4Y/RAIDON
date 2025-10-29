@@ -1,6 +1,8 @@
+rm .git/index
+git reset
 git add .
-git commit -m "UPDATE"
-git push origin main --user.name="OctraJ4Y"
+git commit -m "UPDATE_1.0.0"
+git push origin main
 
 
 
