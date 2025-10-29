@@ -1,3 +1,4 @@
+git add .
 rm .git/index
 git reset
 git add .
