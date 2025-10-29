@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .shadow-green-500\/50 { box-shadow: 0 0 16px rgba(34, 197, 94, 0.5); }
+  .shadow-yellow-500\/50 { box-shadow: 0 0 16px rgba(234, 179, 8, 0.5); }
+  .shadow-gray-500\/50 { box-shadow: 0 0 12px rgba(107, 114, 128, 0.5); }
+}

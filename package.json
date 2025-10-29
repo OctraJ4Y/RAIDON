@@ -1,0 +1,37 @@
+{
+  "name": "raidon-discord-bot",
+  "version": "1.0.0",
+  "description": "Ein moderner Discord-Bot mit Supabase-Integration und Web-Dashboard.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build:css": "npx tailwindcss -i ./css/input.css -o ./css/styles.css --watch",
+    "build:prod": "npx tailwindcss -i ./css/input.css -o ./css/styles.css --minify",
+    "boot": "./scripts/boot_up.sh",
+    "check": "./scripts/check.sh"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "git": "^0.1.5"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "nodemon": "^3.1.4",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.0"
+  },
+  "keywords": [
+    "discord-bot",
+    "supabase",
+    "raidon",
+    "dashboard",
+    "tailwindcss"
+  ],
+  "author": "Raidon Project Team",
+  "license": "MIT",
+  "repository": "https://github.com/OctraJ4Y/RAIDON"
+}
