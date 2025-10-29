@@ -10,7 +10,8 @@
     "build:css": "npx tailwindcss -i ./css/input.css -o ./css/styles.css --watch",
     "build:prod": "npx tailwindcss -i ./css/input.css -o ./css/styles.css --minify",
     "boot": "./scripts/boot_up.sh",
-    "check": "./scripts/check.sh"
+    "check": "./scripts/check.sh",
+    "git": "./scripts/git.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.76.1",
