@@ -3,157 +3,472 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Raidon – Der smarte Discord-Bot</title>
-  <meta name="description" content="Raidon ist dein All-in-One Discord-Bot: Levelsystem, Moderation, Musik & mehr – live, stabil, kostenlos." />
+  <title>Raidon – Dark Glass Bot</title>
+  <meta name="description" content="Raidon: Dark, glassy, ambient Discord bot." />
   
-  <script src="js/vercel.js" rel="module"></script>
-  <!-- Tailwind CSS (CDN) -->
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          animation: { 'pulse-slow': 'pulse 3s ease-in-out infinite' },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            glass: {
+              base: 'rgba(20, 20, 35, 0.35)',
+              hover: 'rgba(25, 25, 45, 0.45)',
+              border: 'rgba(139, 92, 246, 0.15)',
+              inner: 'rgba(139, 92, 246, 0.05)',
+            },
+            glow: {
+              purple: '#8b5cf6',
+              cyan: '#0ea5e9',
+              pink: '#ec4899',
+            },
+          },
+          animation: {
+            'fade-in': 'fadeIn 1.2s ease-out forwards',
+            'slide-up': 'slideUp 1s ease-out forwards',
+            'float': 'float 8s ease-in-out infinite',
+            'pulse-deep': 'pulseDeep 3s ease-in-out infinite',
+            'morph': 'morph 25s ease-in-out infinite',
+            'particle': 'particle 20s linear infinite',
+            'scan': 'scan 7s linear infinite',
+            'glow-shift': 'glowShift 12s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: 0, transform: 'translateY(40px)', filter: 'blur(12px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' },
+            },
+            slideUp: {
+              '0%': { opacity: 0, transform: 'translateY(60px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+              '50%': { transform: 'translateY(-16px) rotate(1.5deg)' },
+            },
+            pulseDeep: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(139, 92, 246, 0)' },
+              '50%': { boxShadow: '0 0 0 20px rgba(139, 92, 246, 0.08)' },
+            },
+            morph: {
+              '0%': { borderRadius: '58% 42% 35% 65% / 62% 38% 62% 38%' },
+              '50%': { borderRadius: '42% 58% 65% 35% / 38% 62% 38% 62%' },
+              '100%': { borderRadius: '58% 42% 35% 65% / 62% 38% 62% 38%' },
+            },
+            particle: {
+              '0%': { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 0 },
+              '15%': { opacity: 0.7 },
+              '85%': { opacity: 0.7 },
+              '100%': { transform: 'translateY(-140vh) translateX(180px) rotate(1080deg)', opacity: 0 },
+            },
+            scan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(250%)' },
+            },
+            glowShift: {
+              '0%': { filter: 'hue-rotate(0deg) brightness(1)' },
+              '50%': { filter: 'hue-rotate(60deg) brightness(1.2)' },
+              '100%': { filter: 'hue-rotate(0deg) brightness(1)' },
+            },
+          },
+          backdropBlur: {
+            xs: '6px',
+            sm: '12px',
+            md: '18px',
+            lg: '24px',
+            xl: '32px',
+          },
         },
       },
     };
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/input.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    :root {
+      --bg: #0a0a10;
+      --text: #e2e8f0;
+      --glass-base: rgba(20, 20, 35, 0.35);
+      --glass-hover: rgba(25, 25, 45, 0.45);
+      --glass-border: rgba(139, 92, 246, 0.15);
+      --glass-inner: rgba(139, 92, 246, 0.05);
+      --glow-purple: #8b5cf6;
+      --glow-cyan: #0ea5e9;
+      --glow-pink: #ec4899;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* Multi-Layer Glass Card */
+    .glass-card {
+      background: var(--glass-base);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: var(--glass-inner);
+      border-radius: 1.875rem;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .glass-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transition: left 0.8s ease;
+      pointer-events: none;
+    }
+
+    .glass-card:hover::after {
+      left: 100%;
+    }
+
+    .glass-card:hover {
+      background: var(--glass-hover);
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(139, 92, 246, 0.25),
+        inset 0 0 40px rgba(139, 92, 246, 0.08);
+    }
+
+    /* Ambient Blob */
+    .ambient-blob {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 70%);
+      filter: blur(120px);
+      opacity: 0.35;
+      animation: morph 25s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Cursor Glow */
+    .cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.18), transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Particles */
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #8b5cf6;
+      border-radius: 50%;
+      pointer-events: none;
+      box-shadow: 0 0 16px #8b5cf6;
+      opacity: 0.7;
+      animation: particle 20s linear infinite;
+    }
+
+    /* Scanline */
+    .scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.35), transparent);
+      opacity: 0.2;
+      animation: scan 7s linear infinite;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Navbar */
+    .nav-link {
+      @apply relative text-base font-medium transition-all duration-400 px-5 py-3 rounded-2xl;
+    }
+    .nav-link:hover {
+      @apply bg-white/5;
+    }
+    .nav-link.active {
+      @apply bg-glow-purple/10 text-glow-purple font-semibold;
+    }
+
+    /* Button */
+    .btn-glass {
+      @apply px-12 py-6 rounded-3xl font-bold text-white bg-gradient-to-r from-glow-purple to-glow-cyan shadow-2xl transition-all duration-500 transform hover:scale-105 hover:shadow-glow-purple/50 relative overflow-hidden;
+    }
+    .btn-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .btn-glass:hover::before {
+      opacity: 1;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+  </style>
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+<body class="min-h-screen font-sans antialiased">
 
-  <!-- === HERO === -->
-  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
-    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 blur-3xl"></div>
-    <div class="relative max-w-7xl mx-auto text-center z-10">
-      <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-        Raidon
+  <!-- Ambient Blobs -->
+  <div class="ambient-blob" style="top: 15%; left: 8%; animation-delay: 0s;"></div>
+  <div class="ambient-blob" style="top: 55%; right: 12%; animation-delay: 9s; width: 900px; height: 900px;"></div>
+  <div class="ambient-blob" style="bottom: 15%; left: 45%; animation-delay: 18s; width: 600px; height: 600px;"></div>
+
+  <!-- Scanline -->
+  <div class="scanline"></div>
+
+  <!-- Cursor Glow -->
+  <div id="cursorGlow" class="cursor-glow"></div>
+
+  <!-- Particles -->
+  <div id="particles" class="fixed inset-0 -z-10 pointer-events-none"></div>
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-glass-base border-b border-glass-border">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+      <a href="#hero" class="flex items-center gap-4 group">
+        <div class="w-14 h-14 bg-gradient-to-br from-glow-purple to-glow-cyan rounded-3xl flex items-center justify-center shadow-2xl group-hover:shadow-glow-purple/60 transition-all duration-500 animate-pulse-deep">
+          <span class="text-white font-bold text-2xl">R</span>
+        </div>
+        <span class="text-3xl font-bold bg-gradient-to-r from-glow-purple to-glow-cyan bg-clip-text text-transparent">Raidon</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-10">
+        <a href="#hero" class="nav-link">Home</a>
+        <a href="#stats" class="nav-link">Stats</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="https://discord.com/api/oauth2/authorize?client_id=1432413416860946472&redirect_uri=https%3A%2F%2Fraidon.vercel.app%2Fdashboard%2Fcallback&response_type=code&scope=identify%20guilds" 
+           class="px-10 py-4 bg-glow-purple text-white font-medium rounded-2xl shadow-xl hover:shadow-glow-purple/70 transition-all duration-400">
+          Dashboard
+        </a>
+      </div>
+
+      <button id="mobileMenuBtn" class="md:hidden p-3 glass-card rounded-2xl">
+        <svg class="w-7 h-7 text-glow-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 h-full w-full glass-card shadow-2xl md:hidden">
+      <div class="p-12">
+        <div class="flex justify-between items-center mb-20">
+          <span class="text-3xl font-bold bg-gradient-to-r from-glow-purple to-glow-cyan bg-clip-text text-transparent">Raidon</span>
+          <button id="closeMobileMenu" class="p-3 glass-card rounded-2xl">
+            <svg class="w-7 h-7 text-glow-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <nav class="space-y-8">
+          <a href="#hero" class="block text-2xl font-medium py-4">Home</a>
+          <a href="#stats" class="block text-2xl font-medium py-4">Stats</a>
+          <a href="#features" class="block text-2xl font-medium py-4">Features</a>
+          <a href="https://discord.com/api/oauth2/authorize?client_id=1432413416860946472&redirect_uri=https%3A%2F%2Fraidon.vercel.app%2Fdashboard%2Fcallback&response_type=code&scope=identify%20guilds" 
+             class="block mt-12 px-12 py-6 btn-glass text-center">
+            Dashboard
+          </a>
+        </nav>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" class="pt-48 pb-40 px-6 relative">
+    <div class="max-w-7xl mx-auto text-center z-10">
+      <h1 class="text-8xl md:text-9xl font-extrabold mb-10 bg-gradient-to-r from-glow-purple via-glow-cyan to-glow-pink bg-clip-text text-transparent animate-fade-in animate-glow-shift">
+        RAIDON
       </h1>
-      <a href="https://discord.com/api/oauth2/authorize?client_id=1432413416860946472&redirect_uri=https%3A%2F%2Fraidon.vercel.app%2Fdashboard%2Fcallback&response_type=code&scope=identify%20guilds" 
-   class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200">
-  Dashboard Login
-</a>
-      <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-700 dark:text-gray-300">
-        Der <span class="font-semibold text-indigo-600 dark:text-indigo-400">smarte</span> Discord-Bot mit Levelsystem, Moderation, Musik & mehr.
+      <p class="text-2xl md:text-4xl mb-20 max-w-5xl mx-auto text-gray-400 leading-relaxed animate-fade-in animation-delay-400">
+        Dark. Glassy. <span class="font-bold text-glow-purple">Leveling</span>. <span class="font-bold text-glow-cyan">Moderation</span>. <span class="font-bold text-glow-pink">Music</span>.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-        <a href="https://discord.com/oauth2/authorize?client_id=DEIN_BOT_ID&scope=bot%20applications.commands&permissions=8" 
-           class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200">
-          Bot einladen
-        </a>
-        <a href="#features" class="px-8 py-4 border-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-semibold rounded-xl hover:bg-indigo-600 hover:text-white transition-all duration-200">
-          Features
+
+      <div class="flex flex-col sm:flex-row gap-10 justify-center mb-24 animate-slide-up animation-delay-800">
+        <a href="https://discord.com/oauth2/authorize?client_id=1432413416860946472&scope=bot%20applications.commands&permissions=8" 
+           class="btn-glass">
+          Add to Discord
         </a>
       </div>
 
-      <!-- Bot Status Badge -->
-      <div class="flex items-center justify-center gap-3 text-lg">
+      <!-- Status -->
+      <div class="flex items-center justify-center gap-8 text-lg animate-fade-in animation-delay-1200">
         <div class="relative">
-          <div id="statusDot" class="absolute bottom-0 right-0 w-5 h-5 bg-gray-500 rounded-full border-3 border-white shadow-lg"></div>
-          <div class="w-12 h-12 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+          <div id="statusDot" class="absolute -bottom-3 -right-3 w-9 h-9 bg-gray-600 rounded-full border-4 border-var(--bg) shadow-2xl animate-pulse-deep"></div>
+          <div class="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full shadow-2xl ring-4 ring-glow-purple/20"></div>
         </div>
-        <span id="statusText" class="font-medium text-gray-500">offline</span>
+        <span id="statusText" class="font-bold text-3xl text-glow-purple animate-pulse-deep">OFFLINE</span>
       </div>
     </div>
   </section>
 
-  <!-- === LIVE STATS === -->
-  <section id="stats" class="py-20 px-6 bg-white dark:bg-gray-800">
+  <!-- STATS -->
+  <section id="stats" class="py-40 px-6">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-4xl md:text-5xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-        Live-Statistiken
+      <h2 class="text-7xl md:text-8xl font-extrabold text-center mb-24 bg-gradient-to-r from-glow-purple to-glow-cyan bg-clip-text text-transparent animate-fade-in">
+        Live Stats
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-          <p class="text-5xl font-bold" id="live-users">0</p>
-          <p class="text-lg mt-2 opacity-90">Aktive Nutzer</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="glass-card p-16 text-center animate-slide-up">
+          <p class="text-8xl font-extrabold text-glow-purple font-mono" id="live-users">0</p>
+          <p class="text-xl mt-6 text-gray-400">Active Users</p>
         </div>
-        <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-8 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-          <p class="text-5xl font-bold" id="live-servers">0</p>
-          <p class="text-lg mt-2 opacity-90">Server</p>
+        <div class="glass-card p-16 text-center animate-slide-up animation-delay-300">
+          <p class="text-8xl font-extrabold text-glow-cyan font-mono" id="live-servers">0</p>
+          <p class="text-xl mt-6 text-gray-400">Servers</p>
         </div>
-        <div class="bg-gradient-to-br from-pink-500 to-red-600 p-8 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-          <p class="text-5xl font-bold" id="live-top-level">1</p>
-          <p class="text-lg mt-2 opacity-90">Top-Level</p>
+        <div class="glass-card p-16 text-center animate-slide-up animation-delay-600">
+          <p class="text-8xl font-extrabold text-glow-pink font-mono" id="live-top-level">1</p>
+          <p class="text-xl mt-6 text-gray-400">Top Level</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- === FEATURES === -->
-  <section id="features" class="py-20 px-6">
+  <!-- FEATURES -->
+  <section id="features" class="py-40 px-6">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-4xl md:text-5xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
+      <h2 class="text-7xl md:text-8xl font-extrabold text-center mb-24 bg-gradient-to-r from-glow-cyan to-glow-pink bg-clip-text text-transparent animate-fade-in">
         Features
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
-          <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-xl flex items-center justify-center mb-6">
-            <span class="text-3xl">Level Up</span>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+        <div class="glass-card p-14 group cursor-pointer animate-slide-up">
+          <div class="w-32 h-32 bg-gradient-to-br from-glow-purple to-glow-cyan rounded-3xl flex items-center justify-center mb-10 text-white text-7xl shadow-2xl group-hover:animate-float">
+            Up
           </div>
-          <h3 class="text-2xl font-bold mb-3">Levelsystem</h3>
-          <p class="text-gray-600 dark:text-gray-400">Belohne aktive Member mit XP, Rängen & Rollen.</p>
+          <h3 class="text-3xl font-bold mb-4 text-glow-purple">Leveling</h3>
+          <p class="text-gray-400">XP, ranks, roles — fully automated.</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
-          <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mb-6">
-            <span class="text-3xl">Shield</span>
+        <div class="glass-card p-14 group cursor-pointer animate-slide-up animation-delay-300">
+          <div class="w-32 h-32 bg-gradient-to-br from-glow-cyan to-glow-pink rounded-3xl flex items-center justify-center mb-10 text-white text-7xl shadow-2xl group-hover:animate-float">
+            Shield
           </div>
-          <h3 class="text-2xl font-bold mb-3">Moderation</h3>
-          <p class="text-gray-600 dark:text-gray-400">Automatische Filter, Warnungen, Bans & Logs.</p>
+          <h3 class="text-3xl font-bold mb-4 text-glow-cyan">Moderation</h3>
+          <p class="text-gray-400">Filters, logs, bans — enterprise-grade.</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
-          <div class="w-16 h-16 bg-pink-100 dark:bg-pink-900 rounded-xl flex items-center justify-center mb-6">
-            <span class="text-3xl">Music Note</span>
+        <div class="glass-card p-14 group cursor-pointer animate-slide-up animation-delay-600">
+          <div class="w-32 h-32 bg-gradient-to-br from-glow-pink to-red-500 rounded-3xl flex items-center justify-center mb-10 text-white text-7xl shadow-2xl group-hover:animate-float">
+            Music
           </div>
-          <h3 class="text-2xl font-bold mb-3">Musik</h3>
-          <p class="text-gray-600 dark:text-gray-400">YouTube, Spotify, SoundCloud – alles in bester Qualität.</p>
+          <h3 class="text-3xl font-bold mb-4 text-glow-pink">Music</h3>
+          <p class="text-gray-400">Spotify, YouTube — crystal clear.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- === QUICK MENU (Mobile FAB) === -->
-  <button id="quickMenuFab" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-200 md:hidden">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-  </button>
-
-  <div id="quickMenuPanel" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end justify-center md:hidden">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-t-3xl shadow-2xl">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-bold">Menü</h3>
-        <button id="closePanel" class="text-gray-500 hover:text-gray-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <nav class="space-y-4">
-        <a href="#hero" class="block py-3 text-lg font-medium hover:text-indigo-600 transition-colors">Home</a>
-        <a href="#stats" class="block py-3 text-lg font-medium hover:text-indigo-600 transition-colors">Stats</a>
-        <a href="#features" class="block py-3 text-lg font-medium hover:text-indigo-600 transition-colors">Features</a>
-      </nav>
-    </div>
+  <!-- Discord Widget -->
+  <div class="fixed bottom-8 left-8 z-40 hidden md:block">
+    <iframe src="https://discord.com/widget?id=1432412882968121346&theme=dark" width="400" height="540" allowtransparency="true" frameborder="0" class="rounded-3xl shadow-2xl glass-card border border-glass-border"></iframe>
   </div>
 
-  <!-- === DARK MODE TOGGLE === -->
-  <button id="darkModeToggle" class="fixed top-6 right-6 z-40 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-    <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.708.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
-    <svg id="moonIcon" class="w-6 h-6 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
-  </button>
-  
-  <iframe src="https://discord.com/widget?id=1432412882968121346&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+  <!-- SCRIPTS -->
+  <script src="js/script.js" rel="module"></script>
 
-  <!-- === SCRIPTS === -->
-  <script src="js/script.js"></script>
+  <!-- INTERACTIVE JS -->
   <script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script>
-  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
+    // Cursor Glow
+    const cursorGlow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', (e) => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+      cursorGlow.style.opacity = '1';
+    });
+    document.addEventListener('mouseleave', () => cursorGlow.style.opacity = '0');
+
+    // Particles
+    function createParticle() {
+      const p = document.createElement('div');
+      p.classList.add('particle');
+      p.style.left = Math.random() * window.innerWidth + 'px';
+      p.style.animationDuration = (Math.random() * 15 + 20) + 's';
+      p.style.animationDelay = Math.random() * 10 + 's';
+      document.getElementById('particles').appendChild(p);
+      setTimeout(() => p.remove(), 30000);
+    }
+    setInterval(createParticle, 700);
+
+    // Mobile Menu
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMobileMenu = document.getElementById('closeMobileMenu');
+    mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+    closeMobileMenu.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    mobileMenu.addEventListener('click', (e) => { if (e.target === mobileMenu) mobileMenu.classList.remove('open'); });
+
+    // Active Nav
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        if (window.innerWidth < 768) mobileMenu.classList.remove('open');
+      });
+    });
+
+    // Scroll Animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('[class*="animate-"]').forEach(el => {
+      el.style.opacity = 0;
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
 </body>
 </html>
